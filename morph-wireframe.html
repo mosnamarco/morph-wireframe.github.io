@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MORPH — App Wireframe & Data Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F5F7;
+    --panel:#FFFFFF;
+    --ink:#16171B;
+    --ink-2:#5A5E68;
+    --ink-3:#8B8F99;
+    --line:#CDD1D9;
+    --line-soft:#E2E4EA;
+    --fill:#E7E9EF;          /* placeholder block */
+    --fill-2:#EFF1F5;
+    --signal:#2D5BFF;         /* the one accent: a live data signal */
+    --signal-soft:#E3EAFF;
+    --radius:14px;
+    --mono:'Space Mono',monospace;
+    --display:'Space Grotesk',sans-serif;
+    --body:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  ::selection{background:var(--signal);color:#fff;}
+
+  /* ---------- header ---------- */
+  header.top{
+    position:sticky;top:0;z-index:50;
+    background:rgba(244,245,247,.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .top-inner{
+    max-width:1180px;margin:0 auto;padding:14px 22px;
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  }
+  .wordmark{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.14em;}
+  .wordmark span{color:var(--signal);}
+  .sub{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;}
+  nav.jump{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap;}
+  nav.jump a{
+    font-family:var(--mono);font-size:11px;text-decoration:none;color:var(--ink-2);
+    padding:6px 11px;border:1px solid var(--line);border-radius:999px;background:var(--panel);
+    transition:all .15s;
+  }
+  nav.jump a:hover{border-color:var(--signal);color:var(--signal);}
+
+  /* ---------- layout ---------- */
+  main{max-width:1180px;margin:0 auto;padding:0 22px 100px;}
+  .section{padding:54px 0 10px;}
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--signal);display:flex;align-items:center;gap:10px;margin-bottom:8px;
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--signal);}
+  h2.sec-title{
+    font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,38px);
+    margin:0 0 6px;letter-spacing:-.01em;
+  }
+  .sec-lead{color:var(--ink-2);max-width:620px;margin:0 0 8px;font-size:15px;}
+
+  /* ---------- intro band ---------- */
+  .hero{padding:48px 0 6px;}
+  .hero h1{
+    font-family:var(--display);font-weight:700;font-size:clamp(30px,5.5vw,52px);
+    line-height:1.04;letter-spacing:-.02em;margin:14px 0 14px;max-width:14ch;
+  }
+  .hero h1 em{font-style:normal;color:var(--signal);}
+  .hero p{color:var(--ink-2);max-width:560px;font-size:16px;margin:0 0 22px;}
+  .legend{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    font-family:var(--mono);font-size:11px;color:var(--ink-2);
+  }
+  .legend .k{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);padding:6px 10px;border-radius:8px;}
+  .dot{width:8px;height:8px;border-radius:2px;background:var(--signal);}
+  .dot.hollow{background:transparent;border:1px solid var(--ink-3);}
+  .hint{
+    margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--ink-3);
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .hint b{color:var(--signal);}
+
+  /* ---------- journey rail ---------- */
+  .rail{
+    display:flex;gap:0;overflow-x:auto;padding:8px 2px 26px;
+    scroll-snap-type:x proximity;
+  }
+  .step{flex:0 0 auto;display:flex;align-items:stretch;scroll-snap-align:start;}
+  .arrow{
+    flex:0 0 auto;width:34px;display:flex;align-items:center;justify-content:center;color:var(--line);
+  }
+  .arrow svg{width:22px;height:22px;}
+
+  /* phone wireframe */
+  .phone{
+    width:208px;border:1.5px solid var(--ink);border-radius:26px;background:var(--panel);
+    padding:9px;cursor:pointer;transition:box-shadow .18s, border-color .18s, transform .18s;
+    position:relative;
+  }
+  .phone:focus-visible{outline:3px solid var(--signal);outline-offset:3px;}
+  .phone .notch{width:54px;height:5px;background:var(--line);border-radius:99px;margin:2px auto 9px;}
+  .phone-screen{border:1px solid var(--line-soft);border-radius:16px;padding:11px;min-height:330px;background:var(--fill-2);}
+  .stepnum{
+    position:absolute;top:-11px;left:-11px;width:26px;height:26px;border-radius:50%;
+    background:var(--ink);color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .phone.is-active{border-color:var(--signal);box-shadow:0 14px 34px -16px rgba(45,91,255,.55);transform:translateY(-3px);}
+  .phone.is-active .stepnum{background:var(--signal);}
+
+  .scr-title{font-family:var(--display);font-weight:600;font-size:13px;margin:0 0 2px;}
+  .scr-cap{font-family:var(--mono);font-size:9px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+
+  /* wireframe primitives */
+  .bar{height:8px;border-radius:3px;background:var(--fill);margin:6px 0;}
+  .bar.dk{background:#D3D6DE;}
+  .bar.w70{width:70%;}.bar.w50{width:50%;}.bar.w85{width:85%;}.bar.w40{width:40%;}.bar.w60{width:60%;}
+  .ph-img{
+    border:1px solid var(--line);border-radius:8px;height:54px;background:
+      repeating-linear-gradient(45deg,transparent 0 6px,rgba(0,0,0,.04) 6px 7px);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:9px;color:var(--ink-3);margin:6px 0;
+  }
+  .card-mini{border:1px solid var(--line);border-radius:9px;padding:8px;margin:7px 0;background:var(--panel);}
+  .chip-row{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0;}
+  .chip{font-family:var(--mono);font-size:9px;border:1px solid var(--line);border-radius:99px;padding:3px 8px;color:var(--ink-2);background:var(--panel);}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .btn{
+    border:1px solid var(--ink);border-radius:8px;text-align:center;padding:8px;
+    font-family:var(--display);font-size:11px;font-weight:600;margin-top:9px;
+  }
+  .btn.fill{background:var(--ink);color:#fff;}
+  .qr{
+    width:64px;height:64px;margin:8px auto;border:1.5px solid var(--ink);border-radius:8px;
+    background:
+      linear-gradient(90deg,var(--ink) 2px,transparent 0) 0 0/12px 100%,
+      linear-gradient(var(--ink) 2px,transparent 0) 0 0/100% 12px;
+    background-color:#fff;opacity:.85;
+  }
+  .tabbar{display:flex;justify-content:space-between;border-top:1px solid var(--line-soft);margin-top:10px;padding-top:8px;}
+  .tabbar i{width:16px;height:16px;border:1px solid var(--line);border-radius:4px;display:block;}
+  .tabbar i.act{background:var(--ink);border-color:var(--ink);}
+  .reward-row{display:flex;align-items:center;gap:8px;margin:7px 0;}
+  .medal{width:20px;height:20px;border-radius:50%;border:1px solid var(--line);flex:0 0 auto;}
+  .progress{height:7px;border-radius:99px;background:var(--fill);overflow:hidden;}
+  .progress > span{display:block;height:100%;width:62%;background:var(--ink);}
+
+  /* signal tag under each phone */
+  .emit{margin-top:12px;text-align:center;}
+  .emit .label{font-family:var(--mono);font-size:9px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;}
+  .emit .sig{
+    display:inline-block;margin-top:5px;font-family:var(--mono);font-size:10px;font-weight:700;
+    color:var(--signal);border:1px solid var(--signal);background:var(--signal-soft);
+    border-radius:99px;padding:4px 10px;
+  }
+  .phone-wrap{display:flex;flex-direction:column;align-items:center;padding-top:11px;}
+
+  /* ---------- signal divider ---------- */
+  .flowband{
+    margin:30px 0 0;padding:22px;border:1px dashed var(--line);border-radius:var(--radius);
+    background:var(--panel);text-align:center;
+  }
+  .flowband .pulse{font-family:var(--mono);font-size:12px;color:var(--ink-2);}
+  .flowband .pulse b{color:var(--signal);}
+  .downarrows{display:flex;justify-content:center;gap:6px;margin-top:12px;color:var(--signal);}
+  .downarrows svg{width:18px;height:18px;animation:bob 1.8s ease-in-out infinite;}
+  .downarrows svg:nth-child(2){animation-delay:.2s;}
+  .downarrows svg:nth-child(3){animation-delay:.4s;}
+  @keyframes bob{0%,100%{transform:translateY(0);opacity:.4;}50%{transform:translateY(4px);opacity:1;}}
+
+  /* ---------- crowdOS capture grid ---------- */
+  .capture-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+  .capture-head .name{font-family:var(--display);font-weight:700;font-size:20px;}
+  .capture-head .tm{font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+  .grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .crowd-cell{
+    border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--panel);
+    transition:all .2s;position:relative;
+  }
+  .crowd-cell .ico{
+    width:30px;height:30px;border:1.5px solid var(--ink);border-radius:8px;margin-bottom:10px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .crowd-cell .ico svg{width:16px;height:16px;}
+  .crowd-cell h4{font-family:var(--display);font-weight:600;font-size:14px;margin:0 0 3px;}
+  .crowd-cell p{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin:0;}
+  .crowd-cell.signal-on{
+    border-color:var(--signal);background:var(--signal-soft);box-shadow:0 10px 26px -16px rgba(45,91,255,.6);
+  }
+  .crowd-cell.signal-on .ico{border-color:var(--signal);color:var(--signal);}
+  .crowd-cell.signal-on h4{color:var(--signal);}
+
+  /* ---------- CIE dashboard wireframe ---------- */
+  .dash{
+    border:1.5px solid var(--ink);border-radius:16px;background:var(--panel);overflow:hidden;
+  }
+  .dash-bar{
+    display:flex;align-items:center;gap:8px;padding:13px 18px;border-bottom:1px solid var(--line-soft);
+    background:var(--fill-2);
+  }
+  .dash-bar .dots{display:flex;gap:5px;}
+  .dash-bar .dots i{width:9px;height:9px;border-radius:50%;border:1px solid var(--line);}
+  .dash-bar .t{font-family:var(--display);font-weight:600;font-size:13px;}
+  .dash-bar .live{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--signal);display:flex;align-items:center;gap:6px;}
+  .dash-bar .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--signal);}
+  .panels{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding:18px;}
+  .cie-panel{
+    border:1px solid var(--line);border-radius:11px;padding:13px;background:var(--panel);
+    transition:all .2s;
+  }
+  .cie-panel.wide{grid-column:span 2;}
+  .cie-panel .ph{font-family:var(--mono);font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;}
+  .cie-panel h5{font-family:var(--display);font-weight:600;font-size:13px;margin:2px 0 10px;}
+  .cie-panel.panel-on{border-color:var(--signal);box-shadow:0 10px 26px -16px rgba(45,91,255,.55);}
+  .cie-panel.panel-on h5{color:var(--signal);}
+
+  /* mini wireframe charts */
+  .bars{display:flex;align-items:flex-end;gap:5px;height:58px;}
+  .bars > i{flex:1;background:var(--fill);border-radius:3px 3px 0 0;}
+  .panel-on .bars > i{background:var(--signal);opacity:.55;}
+  .panel-on .bars > i:nth-child(2),.panel-on .bars > i:nth-child(4){opacity:.9;}
+  .donut{
+    width:62px;height:62px;border-radius:50%;margin:4px auto;
+    background:conic-gradient(var(--ink) 0 62%, var(--fill) 0 100%);
+    -webkit-mask:radial-gradient(circle 19px at center,transparent 98%,#000 100%);
+            mask:radial-gradient(circle 19px at center,transparent 98%,#000 100%);
+  }
+  .panel-on .donut{background:conic-gradient(var(--signal) 0 62%, var(--signal-soft) 0 100%);}
+  .spark{height:50px;display:flex;align-items:flex-end;}
+  .spark svg{width:100%;height:100%;}
+  .spark path{fill:none;stroke:var(--ink-2);stroke-width:2;}
+  .panel-on .spark path{stroke:var(--signal);}
+  .legend-mini{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+  .legend-mini > div{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;color:var(--ink-2);}
+  .legend-mini .sw{width:10px;height:10px;border-radius:3px;background:var(--fill);}
+
+  .trace-caption{
+    margin:16px 0 0;font-family:var(--mono);font-size:12px;color:var(--ink-2);
+    min-height:18px;
+  }
+  .trace-caption b{color:var(--signal);}
+
+  /* ---------- sponsor dashboard ---------- */
+  .sponsor{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;}
+  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+  .kpi{border:1px solid var(--line);border-radius:11px;padding:14px;background:var(--panel);}
+  .kpi .num{font-family:var(--display);font-weight:700;font-size:24px;}
+  .kpi .lab{font-family:var(--mono);font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;}
+  .kpi .up{font-family:var(--mono);font-size:10px;color:var(--signal);}
+  .table-wire{border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--panel);}
+  .table-wire .row{display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr;gap:10px;padding:10px 13px;border-bottom:1px solid var(--line-soft);align-items:center;}
+  .table-wire .row.head{background:var(--fill-2);}
+  .table-wire .row.head span{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);}
+  .table-wire .row:last-child{border-bottom:none;}
+  .cellbar{height:8px;border-radius:3px;background:var(--fill);}
+
+  /* ---------- flywheel + moat ---------- */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+  .schema{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:22px;}
+  .schema h3{font-family:var(--display);font-weight:700;font-size:15px;margin:0 0 4px;}
+  .schema .desc{font-family:var(--body);font-size:13px;color:var(--ink-2);margin:0 0 16px;}
+  .loop{display:flex;flex-direction:column;gap:0;}
+  .loop .node{
+    font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;background:var(--fill-2);display:flex;align-items:center;gap:9px;
+  }
+  .loop .node b{color:var(--ink);}
+  .loop .node .n{width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .loop .node.accent{border-color:var(--signal);background:var(--signal-soft);}
+  .loop .node.accent .n{background:var(--signal);}
+  .loop .lnk{height:14px;width:1px;background:var(--line);margin:0 0 0 21px;}
+  .moat-step{
+    font-family:var(--mono);font-size:12px;padding:9px 12px;border-left:2px solid var(--ink);
+    margin-left:6px;position:relative;color:var(--ink);
+  }
+  .moat-step::before{content:"";position:absolute;left:-5px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--ink);}
+  .moat-foot{margin-top:16px;font-size:13px;color:var(--ink-2);font-family:var(--body);}
+  .moat-foot b{color:var(--ink);}
+
+  footer{max-width:1180px;margin:0 auto;padding:40px 22px;border-top:1px solid var(--line-soft);
+    font-family:var(--mono);font-size:11px;color:var(--ink-3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+
+  @media (max-width:880px){
+    .grid6{grid-template-columns:1fr 1fr;}
+    .panels{grid-template-columns:repeat(2,1fr);}
+    .cie-panel.wide{grid-column:span 2;}
+    .sponsor{grid-template-columns:1fr;}
+    .two-col{grid-template-columns:1fr;}
+  }
+  @media (max-width:560px){
+    .grid6{grid-template-columns:1fr;}
+    .panels{grid-template-columns:1fr;}
+    .cie-panel.wide{grid-column:span 1;}
+    nav.jump{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .downarrows svg{animation:none;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="wordmark">M<span>O</span>RPH</div>
+    <div class="sub">App Wireframe · Data Flow</div>
+    <nav class="jump">
+      <a href="#journey">Journey</a>
+      <a href="#signals">Signals</a>
+      <a href="#cie">Intelligence</a>
+      <a href="#sponsor">Sponsor</a>
+      <a href="#engine">Flywheel</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="eyebrow">Identity → Participation → Intelligence</div>
+    <h1>Every tap on the app is a <em>signal</em> the system learns from.</h1>
+    <p>The wireframe is two halves. On top, what a person does — register a Passport, discover an experience, scan into an Outpost, join a club. Below, what those actions become — CrowdOS captures the signals, CIE turns them into intelligence, sponsors read the report.</p>
+    <div class="legend">
+      <span class="k"><span class="dot hollow"></span> Wireframe screen</span>
+      <span class="k"><span class="dot"></span> Live data signal</span>
+    </div>
+    <div class="hint">↳ <b>Tap any phone screen</b> to trace the signal it sends into the data layer.</div>
+  </section>
+
+  <!-- USER JOURNEY -->
+  <section class="section" id="journey">
+    <div class="eyebrow">Part 01 — Front Stage</div>
+    <h2 class="sec-title">The user journey</h2>
+    <p class="sec-lead">One account, one profile, one experience history — carried across pickleball, creator events, running clubs, concerts and festivals.</p>
+
+    <div class="rail">
+
+      <!-- 1 CREATE PASSPORT -->
+      <div class="step">
+        <div class="phone-wrap">
+          <div class="phone" tabindex="0" data-signal="identity" data-panel="audience"
+               data-trace="Creating a <b>Passport</b> emits the Identity signal — it builds Audience Intelligence.">
+            <div class="stepnum">1</div>
+            <div class="notch"></div>
+            <div class="phone-screen">
+              <p class="scr-title">Create your Passport</p>
+              <p class="scr-cap">Identity layer · onboarding</p>
+              <div class="ph-img">avatar</div>
+              <div class="bar dk w70"></div>
+              <div class="bar w50"></div>
+              <p class="scr-cap" style="margin-top:12px;">Pick your interests</p>
+              <div class="chip-row">
+                <span class="chip on">Pickleball</span>
+                <span class="chip">Creators</span>
+                <span class="chip on">Travel</span>
+                <span class="chip">Running</span>
+                <span class="chip on">K-Pop</span>
+                <span class="chip">Festivals</span>
+              </div>
+              <div class="btn fill">Create Passport</div>
+            </div>
+          </div>
+          <div class="emit">
+            <div class="label">emits signal</div>
+            <span class="sig">IDENTITY</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+      <!-- 2 DISCOVER -->
+      <div class="step">
+        <div class="phone-wrap">
+          <div class="phone" tabindex="0" data-signal="engagement" data-panel="experience"
+               data-trace="<b>Discover</b> answers “what should I do this weekend?” — engagement feeds Experience Intelligence.">
+            <div class="stepnum">2</div>
+            <div class="notch"></div>
+            <div class="phone-screen">
+              <p class="scr-title">What should I do this weekend?</p>
+              <p class="scr-cap">Companion · discovery layer</p>
+              <div class="card-mini">
+                <div class="ph-img" style="height:40px;">event</div>
+                <div class="bar dk w85"></div><div class="bar w50"></div>
+              </div>
+              <div class="card-mini">
+                <div class="bar dk w70"></div><div class="bar w40"></div>
+              </div>
+              <div class="chip-row">
+                <span class="chip">Near me</span><span class="chip">Today</span><span class="chip">Rewards</span>
+              </div>
+              <div class="tabbar"><i class="act"></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+          <div class="emit">
+            <div class="label">emits signal</div>
+            <span class="sig">ENGAGEMENT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+      <!-- 3 OUTPOST SCAN -->
+      <div class="step">
+        <div class="phone-wrap">
+          <div class="phone" tabindex="0" data-signal="movement" data-panel="experience"
+               data-trace="Scanning into an <b>Outpost</b> emits Movement — where people physically go, read in Experience Intelligence.">
+            <div class="stepnum">3</div>
+            <div class="notch"></div>
+            <div class="phone-screen">
+              <p class="scr-title">Scan into an Outpost</p>
+              <p class="scr-cap">Physical layer · check-in</p>
+              <div class="qr"></div>
+              <p class="scr-cap" style="text-align:center;margin-top:4px;">MORPH Outpost @ SM Megamall</p>
+              <div class="card-mini">
+                <div class="bar dk w60"></div><div class="bar w85"></div>
+              </div>
+              <div class="chip-row">
+                <span class="chip">Petron NLEX</span><span class="chip">NAIA</span><span class="chip">PickleLab</span>
+              </div>
+              <div class="btn">Check in</div>
+            </div>
+          </div>
+          <div class="emit">
+            <div class="label">emits signal</div>
+            <span class="sig">MOVEMENT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+      <!-- 4 CHECKPOINT -->
+      <div class="step">
+        <div class="phone-wrap">
+          <div class="phone" tabindex="0" data-signal="commerce" data-panel="commerce"
+               data-trace="A <b>QR Checkpoint</b> at a booth captures Commerce — spend per booth becomes Commerce Intelligence.">
+            <div class="stepnum">4</div>
+            <div class="notch"></div>
+            <div class="phone-screen">
+              <p class="scr-title">Booth checkpoint</p>
+              <p class="scr-cap">QR checkpoint · activity</p>
+              <div class="ph-img" style="height:44px;">booth</div>
+              <div class="bar dk w70"></div>
+              <div class="card-mini">
+                <div class="bar w40"></div>
+                <div class="bar dk w85" style="margin-top:8px;"></div>
+              </div>
+              <div class="chip-row">
+                <span class="chip on">Joined</span><span class="chip">+50 pts</span>
+              </div>
+              <div class="btn fill">Claim activity</div>
+            </div>
+          </div>
+          <div class="emit">
+            <div class="label">emits signal</div>
+            <span class="sig">COMMERCE</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+      <!-- 5 CLUBS -->
+      <div class="step">
+        <div class="phone-wrap">
+          <div class="phone" tabindex="0" data-signal="community" data-panel="community"
+               data-trace="Joining a <b>Club</b> emits Community — clubs retain users and grow Community Intelligence.">
+            <div class="stepnum">5</div>
+            <div class="notch"></div>
+            <div class="phone-screen">
+              <p class="scr-title">Join a Club</p>
+              <p class="scr-cap">Community layer · retention</p>
+              <div class="card-mini">
+                <div class="reward-row"><span class="medal"></span><div style="flex:1;"><div class="bar dk w70" style="margin:2px 0;"></div></div></div>
+              </div>
+              <div class="chip-row">
+                <span class="chip on">Pickle Club</span><span class="chip">Creator Club</span>
+                <span class="chip">Travel Club</span><span class="chip on">Running Club</span>
+              </div>
+              <p class="scr-cap" style="margin-top:8px;">Events acquire · Clubs retain</p>
+              <div class="btn">Join community</div>
+            </div>
+          </div>
+          <div class="emit">
+            <div class="label">emits signal</div>
+            <span class="sig">COMMUNITY</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+
+      <!-- 6 REWARDS -->
+      <div class="step">
+        <div class="phone-wrap">
+          <div class="phone" tabindex="0" data-signal="influence" data-panel="influence"
+               data-trace="<b>Rewards &amp; Missions</b> surface Influence — who drives others to participate, read in Influence Intelligence.">
+            <div class="stepnum">6</div>
+            <div class="notch"></div>
+            <div class="phone-screen">
+              <p class="scr-title">Rewards &amp; Missions</p>
+              <p class="scr-cap">Passport · experience history</p>
+              <div class="reward-row"><span class="medal"></span><div style="flex:1;"><div class="bar dk w60" style="margin:0 0 6px;"></div><div class="progress"><span></span></div></div></div>
+              <div class="card-mini">
+                <div class="bar w50"></div>
+                <div class="bar dk w85" style="margin-top:8px;"></div>
+              </div>
+              <div class="chip-row">
+                <span class="chip">Mission 1</span><span class="chip on">Mission 2</span><span class="chip">Mission 3</span>
+              </div>
+              <div class="tabbar"><i></i><i></i><i></i><i class="act"></i></div>
+            </div>
+          </div>
+          <div class="emit">
+            <div class="label">emits signal</div>
+            <span class="sig">INFLUENCE</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="flowband">
+      <div class="pulse">Every interaction becomes a signal. <b>Six signal types flow down into CrowdOS →</b></div>
+      <div class="downarrows">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- CROWDOS CAPTURE -->
+  <section class="section" id="signals">
+    <div class="eyebrow">Part 02 — Capture</div>
+    <h2 class="sec-title">CrowdOS™ captures the signals</h2>
+    <p class="sec-lead">The operating system for shared experiences. Every Passport, scan, club join and checkpoint writes to one of six signal channels.</p>
+
+    <div class="capture-head">
+      <span class="name">CrowdOS</span>
+      <span class="tm">internal · wave 1 analytics</span>
+    </div>
+
+    <div class="grid6">
+      <div class="crowd-cell" data-signal="identity">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M5 21c0-4 3.5-6 7-6s7 2 7 6"/></svg></div>
+        <h4>Identity</h4><p>Who participates?</p>
+      </div>
+      <div class="crowd-cell" data-signal="community">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 20c0-3 2.5-5 5-5M21 20c0-3-2.5-5-5-5"/></svg></div>
+        <h4>Community</h4><p>What do they belong to?</p>
+      </div>
+      <div class="crowd-cell" data-signal="movement">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+        <h4>Movement</h4><p>Where do they go?</p>
+      </div>
+      <div class="crowd-cell" data-signal="commerce">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 7h14l-1.5 11.5a2 2 0 0 1-2 1.5h-7a2 2 0 0 1-2-1.5L5 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></div>
+        <h4>Commerce</h4><p>What do they buy?</p>
+      </div>
+      <div class="crowd-cell" data-signal="influence">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 11l8-4M8 13l8 4"/></svg></div>
+        <h4>Influence</h4><p>Who drives participation?</p>
+      </div>
+      <div class="crowd-cell" data-signal="engagement">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16v10H8l-4 4V6z"/><path d="M8 10h8M8 13h5"/></svg></div>
+        <h4>Engagement</h4><p>What do they join?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CIE INTELLIGENCE -->
+  <section class="section" id="cie">
+    <div class="eyebrow">Part 03 — Intelligence</div>
+    <h2 class="sec-title">CIE™ turns signals into intelligence</h2>
+    <p class="sec-lead">The Crowd Intelligence Engine reads CrowdOS and renders five views the business actually acts on. This is the analytics surface.</p>
+
+    <div class="dash">
+      <div class="dash-bar">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="t">CIE — Crowd Intelligence Engine</span>
+        <span class="live">live</span>
+      </div>
+      <div class="panels">
+        <div class="cie-panel wide" data-panel="audience">
+          <div class="ph">Audience Intelligence</div>
+          <h5>Who participates</h5>
+          <div class="bars"><i style="height:40%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:90%"></i><i style="height:60%"></i><i style="height:35%"></i></div>
+          <div class="legend-mini"><div><span class="sw"></span> Audience by Passport interest</div></div>
+        </div>
+        <div class="cie-panel wide" data-panel="commerce">
+          <div class="ph">Commerce Intelligence</div>
+          <h5>What spending occurred</h5>
+          <div class="spark"><svg viewBox="0 0 100 40" preserveAspectRatio="none"><path d="M0,32 L16,24 L32,28 L48,14 L64,18 L80,8 L100,12"/></svg></div>
+          <div class="legend-mini"><div><span class="sw"></span> Spend per booth / checkpoint</div></div>
+        </div>
+        <div class="cie-panel wide" data-panel="community">
+          <div class="ph">Community Intelligence</div>
+          <h5>Which clubs grow</h5>
+          <div class="bars"><i style="height:30%"></i><i style="height:50%"></i><i style="height:65%"></i><i style="height:85%"></i><i style="height:95%"></i></div>
+          <div class="legend-mini"><div><span class="sw"></span> Club membership over time</div></div>
+        </div>
+        <div class="cie-panel wide" data-panel="influence">
+          <div class="ph">Influence Intelligence</div>
+          <h5>Who creates value</h5>
+          <div class="donut"></div>
+          <div class="legend-mini"><div><span class="sw"></span> Participation driven by top fans</div></div>
+        </div>
+        <div class="cie-panel wide" data-panel="experience">
+          <div class="ph">Experience Intelligence</div>
+          <h5>Highest-engagement experiences &amp; movement</h5>
+          <div class="bars"><i style="height:80%"></i><i style="height:45%"></i><i style="height:95%"></i><i style="height:60%"></i><i style="height:50%"></i><i style="height:72%"></i></div>
+          <div class="legend-mini"><div><span class="sw"></span> Engagement by Outpost &amp; event</div></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="trace-caption" id="trace">Tap a phone screen above to highlight the signal it captures and the intelligence panel it feeds.</p>
+  </section>
+
+  <!-- SPONSOR DASHBOARD -->
+  <section class="section" id="sponsor">
+    <div class="eyebrow">Part 04 — Read-out</div>
+    <h2 class="sec-title">Sponsor dashboard</h2>
+    <p class="sec-lead">CIE becomes the read-out for brands, venues and tourism boards — per-booth and per-Outpost reporting, sourced from the same signal graph.</p>
+
+    <div class="sponsor">
+      <div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="num">—</div><div class="lab">Reach</div><div class="up">▲ participation</div></div>
+          <div class="kpi"><div class="num">—</div><div class="lab">Check-ins</div><div class="up">▲ by Outpost</div></div>
+          <div class="kpi"><div class="num">—</div><div class="lab">Conversions</div><div class="up">▲ per booth</div></div>
+        </div>
+        <div class="table-wire">
+          <div class="row head"><span>Outpost / Booth</span><span>Scans</span><span>Joined</span><span>Index</span></div>
+          <div class="row"><div class="cellbar" style="width:80%"></div><div class="cellbar" style="width:60%"></div><div class="cellbar" style="width:45%"></div><div class="cellbar" style="width:70%"></div></div>
+          <div class="row"><div class="cellbar" style="width:65%"></div><div class="cellbar" style="width:50%"></div><div class="cellbar" style="width:55%"></div><div class="cellbar" style="width:40%"></div></div>
+          <div class="row"><div class="cellbar" style="width:90%"></div><div class="cellbar" style="width:75%"></div><div class="cellbar" style="width:35%"></div><div class="cellbar" style="width:85%"></div></div>
+          <div class="row"><div class="cellbar" style="width:55%"></div><div class="cellbar" style="width:40%"></div><div class="cellbar" style="width:60%"></div><div class="cellbar" style="width:50%"></div></div>
+        </div>
+      </div>
+      <div class="schema" style="padding:18px;">
+        <h3>Per-booth report</h3>
+        <p class="desc">Each booth's QR funnels into MORPH data — one report per sponsor.</p>
+        <div class="spark" style="height:90px;"><svg viewBox="0 0 100 40" preserveAspectRatio="none" style="height:90px;width:100%;"><path d="M0,36 L20,20 L40,26 L60,10 L80,16 L100,6"/></svg></div>
+        <div class="legend-mini" style="margin-top:12px;">
+          <div><span class="sw" style="background:var(--ink);"></span> Footfall → check-in</div>
+          <div><span class="sw"></span> Check-in → activity joined</div>
+          <div><span class="sw" style="background:var(--signal);"></span> Activity → reward / commerce</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLYWHEEL + MOAT -->
+  <section class="section" id="engine">
+    <div class="eyebrow">Part 05 — Why it compounds</div>
+    <h2 class="sec-title">The flywheel &amp; the moat</h2>
+    <p class="sec-lead">Outposts create nationwide presence while feeding CrowdOS with participation signals. The graph is the asset.</p>
+
+    <div class="two-col">
+      <div class="schema">
+        <h3>The flywheel</h3>
+        <p class="desc">Acquisition spins retention spins intelligence — and back again.</p>
+        <div class="loop">
+          <div class="node"><span class="n">1</span><b>Outposts</b></div><div class="lnk"></div>
+          <div class="node"><span class="n">2</span><b>Experiences</b></div><div class="lnk"></div>
+          <div class="node"><span class="n">3</span><b>Passport</b></div><div class="lnk"></div>
+          <div class="node"><span class="n">4</span><b>Communities</b></div><div class="lnk"></div>
+          <div class="node"><span class="n">5</span><b>Participation</b></div><div class="lnk"></div>
+          <div class="node accent"><span class="n">6</span><b>CrowdOS</b></div><div class="lnk"></div>
+          <div class="node accent"><span class="n">7</span><b>CIE</b></div><div class="lnk"></div>
+          <div class="node accent"><span class="n">8</span><b>Brand Intelligence</b></div>
+        </div>
+      </div>
+
+      <div class="schema">
+        <h3>The moat</h3>
+        <p class="desc">Not events. Not AI. Not dashboards. The moat is what accumulates.</p>
+        <div class="moat-step">Identity</div>
+        <div class="moat-step">Communities</div>
+        <div class="moat-step">Experiences</div>
+        <div class="moat-step">Movement</div>
+        <div class="moat-step">Commerce</div>
+        <div class="moat-step">Influence</div>
+        <p class="moat-foot">Accumulated across thousands of shared experiences, MORPH becomes <b>the largest graph of participation and community behavior in the Philippines</b> — and that graph powers everything above it.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>MORPH™ · Passport · Companion · Clubs · Outpost · CrowdOS · CIE</span>
+  <span>Wireframe v1 · low-fidelity</span>
+</footer>
+
+<script>
+  (function(){
+    var phones = document.querySelectorAll('.phone');
+    var cells  = document.querySelectorAll('.crowd-cell');
+    var panels = document.querySelectorAll('.cie-panel');
+    var caption = document.getElementById('trace');
+    var active = null;
+
+    function clearAll(){
+      phones.forEach(function(p){p.classList.remove('is-active');});
+      cells.forEach(function(c){c.classList.remove('signal-on');});
+      panels.forEach(function(p){p.classList.remove('panel-on');});
+    }
+
+    function activate(phone){
+      var sig = phone.getAttribute('data-signal');
+      var panel = phone.getAttribute('data-panel');
+      clearAll();
+      phone.classList.add('is-active');
+      cells.forEach(function(c){ if(c.getAttribute('data-signal')===sig) c.classList.add('signal-on'); });
+      panels.forEach(function(p){ if(p.getAttribute('data-panel')===panel) p.classList.add('panel-on'); });
+      caption.innerHTML = phone.getAttribute('data-trace');
+      active = phone;
+    }
+
+    phones.forEach(function(phone){
+      function handle(){
+        if(active === phone){
+          clearAll();
+          caption.innerHTML = 'Tap a phone screen above to highlight the signal it captures and the intelligence panel it feeds.';
+          active = null;
+        } else {
+          activate(phone);
+        }
+      }
+      phone.addEventListener('click', handle);
+      phone.addEventListener('keydown', function(e){
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); handle(); }
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
